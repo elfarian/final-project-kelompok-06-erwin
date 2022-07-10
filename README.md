@@ -13,7 +13,7 @@ Link Dataset: https://www.kaggle.com/datasets/yasserh/walmart-dataset
 
 Problem: regression
 
-Final Model: Random Forest Regressuib
+Final Model: Random Forest Regression
 
 Link Repositori: https://github.com/elfarian/final-project-kelompok-06-erwin/
 
