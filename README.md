@@ -17,4 +17,4 @@ Final Model: Random Forest Regression
 
 Link Repositori: https://github.com/elfarian/final-project-kelompok-06-erwin/
 
-Link PPT: <link presentasi dalam google slides>
+Link PPT: https://docs.google.com/presentation/d/1-ATbV4I-PGxykZAn-zTSF7-jbaQ6tlnF2MjoVs4UzJw/edit?usp=sharing
