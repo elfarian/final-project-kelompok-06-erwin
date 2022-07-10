@@ -4,7 +4,9 @@ Zenius Study Independen
 Anggota Kelompok:
 - Elfarian Dela Virdausa
 - Matthew Johanes Jubilant Simangunsong
+
 Nama Mentor: Erwin
+
 Nama Dataset: Walmart Dataset
 
 Link Dataset: https://www.kaggle.com/datasets/yasserh/walmart-dataset
