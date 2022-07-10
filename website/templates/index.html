@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Walmart - Prediction</title>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename= 'assets/favicon.ico') }}" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&amp;display=swap" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{{ url_for('static', filename= 'css/styles.css') }}" rel="stylesheet" />
+    </head>
+	<style>
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+		}
+		/* Firefox */
+		input[type=number] {
+		-moz-appearance: textfield;
+		}
+	</style>
+    <body>
+        <!-- Background Video-->
+        <video class="bg-video" playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop"><source src="{{ url_for('static', filename= 'assets/mp4/bg.mp4') }}" type="video/mp4" /></video>
+        <!-- Masthead-->
+        <div class="masthead">
+            <div class="masthead-content text-white">
+                <div class="container-fluid px-4 px-lg-0">
+                    <div id="form-app"></div>
+                </div>
+            </div>
+        </div>
+        <div class="social-icons">
+            <div class="d-flex flex-row flex-lg-column justify-content-center align-items-center h-100 mt-3 mt-lg-0">
+                <a class="btn btn-dark m-3" href="#!"><i class="fab fa-twitter"></i></a>
+                <a class="btn btn-dark m-3" href="#!"><i class="fab fa-facebook-f"></i></a>
+                <a class="btn btn-dark m-3" href="https://www.instagram.com/oca_asoy/" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="{{ url_for('static', filename= 'js/scripts.js') }}"></script>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  	  	<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+  	  	<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    	<script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+
+    	<script type="text/babel">
+    		const { useState, useRef, useEffect } = React
+
+    		const App = () => {
+				const [store, setStore] = useState(1);
+				const [unemployment, setUnemployment] = useState('');
+				const [cpi, setCPI] = useState('');
+				const [temperature, setTemperature] = useState('');
+				const [holiday, setHoliday] = useState("false");
+				const [date, setDate] = useState('');
+
+				const [errorFormStore, setErrorFormStore] = useState(false);
+				const [errorUnemployement, setErrorUnemployement] = useState(false);
+				const [errorCPI, setErrorCPI] = useState(false);
+				const [errorTemperature, setErrorTemperature] = useState(false);
+				const [errorHoliday, setErrorHoliday] = useState(false);
+				const [errorDate, setErrorDate] = useState(false);
+
+				const [result, setResult] = useState(null);
+				const [loading, setLoading] = useState(false);
+
+				const makeArray = (start, end) => {
+					return Array(end - start + 1).fill().map((_, idx) => start + idx);
+				}
+
+				const [listStore, setListStore] = useState(makeArray(1, 45));
+
+				const onSubmit = async (e) => {
+					e.preventDefault();
+					setLoading(true);
+					setResult(null);
+					if (!unemployment) {
+						setErrorUnemployement(true);
+					}
+					if (!cpi) {
+						setErrorCPI(true);
+					}
+					if (!temperature) {
+						setErrorTemperature(true);
+					}
+					if (!holiday) {
+						setErrorHoliday(true);
+					}
+					if (!date) {
+						setErrorDate(true);
+					}
+					if (!store) {
+						setErrorFormStore(true);
+					}
+					if (!unemployment || !cpi || !temperature || !holiday || !date || !store) {
+						setLoading(false);
+						return
+					}
+
+					const dateSplit = date.split("-");
+					let sendHoliday = 0;
+					if(holiday==="true") sendHoliday=1;
+					let data = {
+						store: parseInt(store),
+						unemployment: parseFloat(unemployment),
+						cpi: parseFloat(cpi),
+						temperature: parseFloat(temperature),
+						holiday: sendHoliday,
+						"day": parseInt(dateSplit[2]),
+						"month": parseInt(dateSplit[1]),
+					};
+
+					await axios({
+						method: 'post',
+						url: "/predict",
+						data: data
+					}).then((result) => {
+						setResult(result.data);
+					}).catch(err => console.error(err));
+					setLoading(false);
+
+				}
+
+    		return (
+			<>
+			<h3 className="fst-italic lh-1 mb-4">Wellcome to Walmart Weekly Sales Prediction</h3>
+    		<form id="contactForm container" onSubmit={(e) => onSubmit(e)}>
+            	<div className="row">
+            		<div className="col-6">
+                		<div className="form-group">
+						    <label htmlFor="store">Store</label>
+							<select 
+							value={store}
+							onChange={event => {setStore(event.target.value); setErrorFormStore(false) }}
+							placeholder="Select Store"
+							className={`form-control ${errorFormStore ? "is-invalid" : ""}`}
+							>
+								{listStore.map((item) => {
+									return (
+										<option 
+										key={item}
+										value={item}>Store {item}</option>
+									);
+								})}
+							</select>
+						</div>
+						<div className="form-group">
+						    <label htmlFor="cpi">CPI</label>
+						    <input type="number"
+							value={cpi}
+							onChange={event => {setCPI(event.target.value); setErrorCPI(false)}}
+							className={`form-control ${errorCPI ? "is-invalid" : ""}`} placeholder="CPI" />
+						</div>
+						<div className="form-group">
+						    <label htmlFor="holiday">Holiday Flag</label>
+							<select className={`form-control ${errorHoliday ? "is-invalid" : ""}`} 
+							value={holiday}
+							onChange={event => {setHoliday(event.target.value); setErrorHoliday(false)}}
+							>
+								<option value="false">No</option>
+								<option value="true">Yes</option>
+							</select>
+						</div>
+                	</div>
+
+                	<div className="col-6">
+                		<div className="form-group">
+						    <label htmlFor="unemployment">Unemployment</label>
+						    <input type="number" 
+							value={unemployment}
+							onChange={event => {setUnemployment(event.target.value); setErrorUnemployement(false)}}
+							className={`form-control ${errorUnemployement ? "is-invalid" : ""}`} placeholder="Unemployment" />
+						</div>
+						<div className="form-group">
+						    <label htmlFor="temperature">Temperature</label>
+						    <input type="number" 
+							value={temperature}
+							onChange={event => {setTemperature(event.target.value); setErrorTemperature(false)}}
+							className={`form-control ${errorTemperature ? "is-invalid" : ""}`} placeholder="Temperature" />
+						</div>
+						<div className="form-group">
+						    <label htmlFor="tanggal">Date</label>
+							<input type="date" 
+							value={date}
+							onChange={event => {setDate(event.target.value); setErrorDate(false)}}
+							className={`form-control ${errorDate ? "is-invalid" : ""}`}/>
+						</div>
+                	</div>
+            	</div>
+            	<div className="form-group mt-2 mb-2">
+            		<button type="submit" className="btn btn-primary">Submit</button>
+            	</div>
+				{
+					loading ?
+					<div class="spinner-border text-success" role="status">
+						<span class="sr-only">Loading...</span>
+					</div>
+					: <></>
+				}
+				{
+					result ? 
+					<p className="text-sm fw-bold">Prediction:</p>
+					: <></>
+				}
+				{
+					result?.map((item, index) => {
+						return <p key={index}><small>{item.message}</small></p>
+					})
+				}
+            </form>
+			</>
+    		)
+
+    		}
+
+    		ReactDOM.render(<App />, document.getElementById("form-app"));
+    	</script>
+    </body>
+</html>
